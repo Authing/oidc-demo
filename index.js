@@ -8,8 +8,8 @@ const app = new koa();
 const router = new koaRouter();
 
 const port = 8888
-const oidcAppId = "OIDC 应用 AppId";
-const oidcAppSecret = "OIDC 应用 AppSecret";
+const oidcAppId = "应用 ID";
+const oidcAppSecret = "应用密钥";
 const redirect_uri = `http://localhost:${port}/oidc/handle`
 
 // Authing 控制台 redirect_uri 可以填下面这个。本示例 code 换 token，token 换用户信息都在后端完成。code 由 Authing 以 url query 的形式发到 redirect_uri。
@@ -19,7 +19,8 @@ router.get("/oidc/handle", async (ctx, next) => {
   let code2tokenResponse
   try {
     code2tokenResponse = await axios.post(
-      "https://oauth.authing.cn/oauth/oidc/token",
+      // 修改为你的应用域名
+      "https://<应用域名>.authing.cn/oidc/token",
       qs.stringify({
         code,
         client_id: oidcAppId,
@@ -39,7 +40,7 @@ router.get("/oidc/handle", async (ctx, next) => {
   }
   let { access_token, id_token } = code2tokenResponse.data;
   // token 换用户信息
-  let token2UserInfoResponse = await axios.get("https://users.authing.cn/oauth/oidc/user/userinfo?access_token=" + access_token);
+  let token2UserInfoResponse = await axios.get("https://core.authing.cn/oidc/me?access_token=" + access_token);
 
   // 解密 id_token
   let decrypted_id_token = jwt.verify(id_token, oidcAppSecret)
@@ -69,7 +70,8 @@ router.get("/protected/resource", async (ctx, next) => {
   } catch (err) {
     // 把用户重定向到 oidc 授权地址，进行登录
     ctx.redirect(
-      `http://sso.authing.cn/oauth/oidc/auth?client_id=${oidcAppId}&redirect_uri=${redirect_uri}&scope=openid%20profile%20offline_access%20phone%20email&response_type=code&state=jazzb&nonce=22121&prompt=consent`
+      // 修改为你的应用域名
+      `https://<应用域名>.authing.cn/oidc/auth?client_id=${oidcAppId}&redirect_uri=${redirect_uri}&scope=openid%20profile%20offline_access%20phone%20email&response_type=code&state=5435436&nonce=22121&prompt=consent`
     );
   }
 });
