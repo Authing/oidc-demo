@@ -20,7 +20,7 @@ router.get("/oidc/handle", async (ctx, next) => {
   try {
     code2tokenResponse = await axios.post(
       // 修改为你的应用域名
-      "https://oidc1.authing.cn/oidc/token",
+      "https://<你的应用域名>.authing.cn/oidc/token",
       qs.stringify({
         code,
         client_id: oidcAppId,
@@ -71,7 +71,7 @@ router.get("/protected/resource", async (ctx, next) => {
     // 把用户重定向到 oidc 授权地址，进行登录
     ctx.redirect(
       // 修改为你的应用域名
-      `https://oidc1.authing.cn/oidc/auth?client_id=${oidcAppId}&redirect_uri=${redirect_uri}&scope=openid%20profile%20offline_access%20phone%20email&response_type=code&state=5435436&nonce=22121&prompt=consent`
+      `https://<你的应用域名>.authing.cn/oidc/auth?client_id=${oidcAppId}&redirect_uri=${redirect_uri}&scope=openid%20profile%20offline_access%20phone%20email&response_type=code&state=5435436&nonce=22121&prompt=consent`
     );
   }
 });
