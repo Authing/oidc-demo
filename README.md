@@ -1,4 +1,5 @@
 # oidc-demo
+
 Authing OIDC RP 端处理方式，基本示例。
 
 帮助不熟悉 OIDC 流程处理方式的开发者熟悉 OIDC 的处理过程。示例中包括 code 换 token，token 换用户信息，受保护资源受访问时判断用户是否有权限，有权限时返回资源，无权限时重定向到 Authing OIDC 登录授权页面。
@@ -14,6 +15,7 @@ Authing OIDC RP 端处理方式，基本示例。
 ## 如何运行
 
 克隆该项目：
+
 ```
 git clone https://github.com/Authing/oidc-demo/
 ```
@@ -30,26 +32,23 @@ $ node index.js
 ### 基础配置
 
 ```javascript
-const port = 8888
-const oidcAppId = "OIDC 应用 AppId";
-const oidcAppSecret = "OIDC 应用 AppSecret";
-const redirect_uri = `http://localhost:${port}/oidc/handle`
+const port = 8888;
+const oidcAppId = 'OIDC 应用 AppId';
+const oidcAppSecret = 'OIDC 应用 AppSecret';
+const redirect_uri = `http://localhost:${port}/oidc/handle`;
 ```
 
 ![](http://lcjim-img.oss-cn-beijing.aliyuncs.com/2020-01-04-073932.png)
 
-
 - oidcAppId 填入 OIDC 应用 AppId
 - oidcAppSecret 填入 OIDC 应用 AppSecret
 - 将 OIDC 应用的回调 URL 设置为本项目的 `/oidc/handle` 接口
-
 
 ### 使用 Guard 登录获取 Code
 
 点击体验登录访问 Guard 在线地址
 
 ![](http://lcjim-img.oss-cn-beijing.aliyuncs.com/2020-01-04-074203.png)
-
 
 ![](http://lcjim-img.oss-cn-beijing.aliyuncs.com/2020-01-04-074319.png)
 
@@ -58,34 +57,34 @@ const redirect_uri = `http://localhost:${port}/oidc/handle`
 ### 使用 Code 换 Token
 
 ```javascript
-const qs = require('querystring')
+const qs = require('querystring');
 
 code2tokenResponse = await axios.post(
-  "https://oauth.authing.cn/oauth/oidc/token",
+  'https://<你的应用域名>.authing.cn/oidc/token',
   qs.stringify({
     code,
     client_id: oidcAppId,
     client_secret: oidcAppSecret,
-    grant_type: "authorization_code",
-    redirect_uri
+    grant_type: 'authorization_code',
+    redirect_uri,
   }),
   {
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
   }
 );
 ```
 
 有几点需要注意：
+
 - `Content-Type` 为 `application/x-www-form-urlencoded`，非 `application/json`
 - Post Body 要转成 `var1=xx&var2=xxx` 的格式。（`qs.stringify()`）
-
 
 ### 使用 Token 换用户信息
 
 ```javascript
-let token2UserInfoResponse = await axios.get("https://users.authing.cn/oauth/oidc/user/userinfo?access_token=" + access_token);
+let token2UserInfoResponse = await axios.get('https://users.authing.cn/oidc/me?access_token=' + access_token);
 ```
 
 返回的标准 OIDC 用户信息格式如下：
@@ -120,12 +119,12 @@ try {
   let decoded = jwt.verify(idToken, oidcAppSecret);
   ctx.body = {
     decoded,
-    protected: "This is protected resource."
-  }
+    protected: 'This is protected resource.',
+  };
 } catch (err) {
   // 把用户重定向到 oidc 授权地址，进行登录
   ctx.redirect(
-    `http://oauth.authing.cn/oauth/oidc/auth?client_id=${oidcAppId}&redirect_uri=${redirect_uri}&scope=openid%20profile%20offline_access%20phone%20email&response_type=code&state=jazzb&nonce=22121&prompt=consent`
+    `https://<你的应用域名>.authing.cn/oidc/auth?client_id=${oidcAppId}&redirect_uri=${redirect_uri}&scope=openid%20profile%20offline_access%20phone%20email&response_type=code&state=5435436&nonce=22121&prompt=consent`
   );
 }
 ```
@@ -133,4 +132,4 @@ try {
 - 从 `authorization` 请求头或 `id_token` query 中获取 id_token
 - 使用 `oidcAppSecret` 尝试解密
   - 如果成功，说明已经登录，可以返回 protected resource
-  - 如果失败，跳转到 `http://sso.authing.cn/oauth/oidc/auth?client_id=${oidcAppId}&redirect_uri=${redirect_uri}&scope=openid%20profile%20offline_access%20phone%20email&response_type=code&state=jazzb&nonce=22121&prompt=consent`，也即上面提到的登录表单页面。
+  - 如果失败，跳转到 `https://<你的应用域名>.authing.cn/oidc/auth?client_id=${oidcAppId}&redirect_uri=${redirect_uri}&scope=openid%20profile%20offline_access%20phone%20email&response_type=code&state=5435436&nonce=22121&prompt=consent`，也即上面提到的登录表单页面。
